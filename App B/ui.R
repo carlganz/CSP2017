@@ -4,7 +4,7 @@ library(rintrojs)
 
 ui <- fluidPage(
   introjsUI(),
-  titlePanel("App A"),
+  titlePanel("App B"),
   sidebarLayout(
     sidebarPanel(),
     mainPanel()
