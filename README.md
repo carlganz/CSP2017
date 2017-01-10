@@ -1,5 +1,5 @@
 # CSP2017
-Shiny apps related to poster *Using Shiny to Efficiently Process Survey Data* at Conference for Statistical practice 2017 in Jacksonville
+Shiny apps related to poster [*Using Shiny to Efficiently Process Survey Data*](https://ww2.amstat.org/meetings/csp/2017/onlineprogram/AbstractDetails.cfm?AbstractID=303391) at Conference for Statistical practice 2017 in Jacksonville
 
 ### Required packages
 
