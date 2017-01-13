@@ -9,6 +9,7 @@ install.packages('DT')
 install.packages('rintrojs')
 install.packages('tidyverse')
 install.packages('stringdist')
+install.packages('plotly')
 install.packages('openxlsx')
 ```
 For `openxlsx` to work on Windows you will need Rtools.
