@@ -8,10 +8,16 @@ ui <- fluidPage(introjsUI(),
                 titlePanel("App A"),
                 sidebarLayout(sidebarPanel(
                   selectizeInput("vars", "Select a CHIS variable",
-                                 choices = c())
+                                 choices = c("CA6",
+                                             "SRAGE"),
+                                 options = list(
+                                   placeholder = "Select a CHIS variable",
+                                   onInitialize = I('function() {this.setValue("");}')
+                                 ))
                 ),
                 mainPanel(
                   tabsetPanel(
+                    id = "tab",
                     tabPanel(
                       title = "Collapse",
                       conditionalPanel(
@@ -36,25 +42,34 @@ ui <- fluidPage(introjsUI(),
                     title = "Top Code",
                     conditionalPanel(
                       condition = "output.varType & output.varType != null",
-                      h2("Warning: Use first tab for categorical variables")
+                      h2("Warning: Use first tab for categorical variables",
+                         class = "warning")
                     ),
-                    plotlyOutput("beforeRecode"),
+                    plotOutput("beforeRecode"),
                     uiOutput("mySlider"),
-                    plotlyOutput("afterRecode")
+                    plotOutput("afterRecode")
                   ),
                   tabPanel(
                     title = "Group",
                     conditionalPanel(
                       condition = "output.varType & output.varType != null",
-                      h2("Warning: Use first tab for categorical variables")
+                      h2("Warning: Use first tab for categorical variables",
+                         class = "warning")
                     ),
-                    plotlyOutput("continousGraph"),
-                    plotlyOutput("categoricalGraph")
+                    div(class = "row",
+                        actionButton("removeLevel", "Remove a Level"),
+                        uiOutput("count"),
+                        actionButton("addLevel","Add a Level")
+                        ),
+                    uiOutput("sliders"),
+                    plotOutput("continousGraph"),
+                    plotOutput("categoricalGraph")
                   )
                   ),
                   conditionalPanel(
                     condition = 'input.vars != null & input.vars != ""',
                     textInput("newName", "Name new variable:"),
-                    textInput("newLabel", "Give new label:")
+                    textInput("newLabel", "Give new label:"),
+                    actionButton("sasCode", "View SAS code")
                   )
                 )))
