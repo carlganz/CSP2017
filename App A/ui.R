@@ -6,14 +6,22 @@ library(plotly)
 ui <- fluidPage(introjsUI(),
                 includeCSS("www/style.css"),
                 titlePanel("App A"),
-                sidebarLayout(sidebarPanel(
+                sidebarLayout(sidebarPanel( width = 3,
                   selectizeInput("vars", "Select a CHIS variable",
                                  choices = c("CA6",
                                              "SRAGE"),
                                  options = list(
                                    placeholder = "Select a CHIS variable",
                                    onInitialize = I('function() {this.setValue("");}')
-                                 ))
+                                 )),
+                  conditionalPanel(
+                    condition = 'input.tab==="Group"',
+                    fluidRow(
+                      h3("Change # of levels"),
+                        actionButton("removeLevel", "Remove"),
+                        actionButton("addLevel","Add")
+                    )
+                  )
                 ),
                 mainPanel(
                   tabsetPanel(
@@ -56,11 +64,6 @@ ui <- fluidPage(introjsUI(),
                       h2("Warning: Use first tab for categorical variables",
                          class = "warning")
                     ),
-                    div(class = "row",
-                        actionButton("removeLevel", "Remove a Level"),
-                        uiOutput("count"),
-                        actionButton("addLevel","Add a Level")
-                        ),
                     uiOutput("sliders"),
                     plotOutput("continousGraph"),
                     plotOutput("categoricalGraph")
