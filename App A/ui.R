@@ -1,9 +1,8 @@
 library(shiny)
 library(DT)
-library(rintrojs)
 library(plotly)
 
-ui <- fluidPage(introjsUI(),
+ui <- fluidPage(
                 includeCSS("www/style.css"),
                 titlePanel("App A"),
                 sidebarLayout(sidebarPanel( width = 3,
