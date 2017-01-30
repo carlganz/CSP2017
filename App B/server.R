@@ -3,7 +3,6 @@ library(DT)
 library(dplyr)
 library(stringdist)
 
-
 server <- function(input, output, session) {
 
   # helper function for making inputs
@@ -20,9 +19,8 @@ server <- function(input, output, session) {
   output$formats <- renderTable({
     req(input$var)
     data.frame(
-      values = c(-1, 1:7),
+      values = c(1:7),
       formats = c(
-        "Inapplicable",
         "North America",
         "South America",
         "Asia",
@@ -44,11 +42,11 @@ server <- function(input, output, session) {
 
   output$responses <- DT::renderDataTable({
     req(input$var)
-
+    session$sendCustomMessage("unbind-DT", "responses")
     compare <- upcodes()
     pastUpcodes <- pastUpcodes()
     compare[,"SimilarResponse"] <- NA
-    compare[,"SimilarResponseUpcode"] <- NA
+    compare[,"SimilarUpcode"] <- NA
 
     for (i in seq_len(nrow(compare))) {
       response <- compare[i,"answer"]
@@ -58,24 +56,60 @@ server <- function(input, output, session) {
       if (any(comp < 3)) {
         best <- which(comp==min(comp))
         compare[i, "SimilarResponse"] <- pastUpcodes$answer[best]
-        compare[i, "SimilarResponseUpcode"] <-
-          pastUpcodes$upcode[best]
+        compare[i, "SimilarUpcode"] <-
+          c(
+            "North America",
+            "South America",
+            "Asia",
+            "Europe",
+            "Africa",
+            "Oceania",
+            "Other"
+          )[pastUpcodes$upcode[best]]
       }
 
     }
 
     data.frame(compare,
                inputUpcode =
-                 shinyInput(numericInput, nrow(compare),
-                            "upcodeVal", value = NULL)
+                 shinyInput(selectizeInput, nrow(compare),
+                            "upcodeVal",
+                            width = "120%",
+                            choices = c(
+                              "North America",
+                              "South America",
+                              "Asia",
+                              "Europe",
+                              "Africa",
+                              "Oceania",
+                              "Other"
+                            ), options =
+                              list(
+                                onInitialize = I(
+                                  'function() {
+                                    this.setValue("")
+                                  }'
+                                )
+                              ))
                  )
   },
   rownames = FALSE, selection = list(mode="none"),
   escape = c(-5), options = list(
-    autoWidth = TRUE,
-    columnDefs = list(list(
-      width = "20px", target = 3
-    ))
+    #autoWidth = TRUE,
+    preDrawCallback = DT::JS(
+      'function() {
+        Shiny.unbindAll(this.api().table().node())
+      }'
+    ),
+    drawCallback = DT::JS(
+      'function(settings) {
+        Shiny.bindAll(this.api().table().node());
+        l = this.api().table().data().length;
+        for (i = 1;i<l+1; i++) {
+          document.getElementById("upcodeVal"+i).value = "";
+        }
+      }'
+    )
   ))
 
 }

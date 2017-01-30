@@ -2,18 +2,29 @@ library(shiny)
 library(DT)
 
 ui <- fluidPage(
+
   titlePanel("App B"),
   sidebarLayout(
-    sidebarPanel(
+    sidebarPanel(width = 4,
       selectizeInput(
         "var", "Select a variable to upcode",
         choices = c("continent_of_origin"),
         options = list(
+          placeholder = "Select a variable to upcode",
           onInitialize = I('function() { this.setValue(""); }')
         )
       )
     ),
     mainPanel(
+      tags$script(
+        HTML(
+          "Shiny.addCustomMessageHandler('unbind-DT', function(id) {
+            if (Shiny.unbindAll($('#'+id).find('table').length>0)) {
+              Shiny.unbindAll($('#'+id).find('table').DataTable().table().node())
+            }
+          })"
+        )
+      ),
       conditionalPanel(
         condition = 'input.var !== "" & input.var !== null',
         h2("Contintent of Origin"),
