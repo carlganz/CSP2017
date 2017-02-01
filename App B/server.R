@@ -4,7 +4,6 @@ library(dplyr)
 library(stringdist)
 
 server <- function(input, output, session) {
-
   # helper function for making inputs
   # in datatable
   # stolen from Yihui somewhere
@@ -45,16 +44,16 @@ server <- function(input, output, session) {
     session$sendCustomMessage("unbind-DT", "responses")
     compare <- upcodes()
     pastUpcodes <- pastUpcodes()
-    compare[,"SimilarResponse"] <- NA
-    compare[,"SimilarUpcode"] <- NA
+    compare[, "SimilarResponse"] <- NA
+    compare[, "SimilarUpcode"] <- NA
 
     for (i in seq_len(nrow(compare))) {
-      response <- compare[i,"answer"]
+      response <- compare[i, "answer"]
 
       comp <- stringdist(response,
                          pastUpcodes$answer)
       if (any(comp < 3)) {
-        best <- which(comp==min(comp))
+        best <- which(comp == min(comp))
         compare[i, "SimilarResponse"] <- pastUpcodes$answer[best]
         compare[i, "SimilarUpcode"] <-
           c(
@@ -70,45 +69,44 @@ server <- function(input, output, session) {
 
     }
 
-    data.frame(compare,
-               inputUpcode =
-                 shinyInput(selectizeInput, nrow(compare),
-                            "upcodeVal",
-                            width = "120%",
-                            choices = c(
-                              "North America",
-                              "South America",
-                              "Asia",
-                              "Europe",
-                              "Africa",
-                              "Oceania",
-                              "Other"
-                            ), options =
-                              list(
-                                onInitialize = I(
-                                  'function() {
-                                    this.setValue("")
-                                  }'
-                                )
-                              ))
-                 )
+    data.frame(
+      compare,
+      inputUpcode =
+        shinyInput(
+          selectizeInput,
+          nrow(compare),
+          "upcodeVal",
+          width = "120%",
+          choices = c(
+            "North America",
+            "South America",
+            "Asia",
+            "Europe",
+            "Africa",
+            "Oceania",
+            "Other"
+          ),
+          options =
+            list(onInitialize = I('function() {
+                                  this.setValue("")
+  }'))
+)
+            )
   },
-  rownames = FALSE, selection = list(mode="none"),
-  escape = c(-5), options = list(
-    #autoWidth = TRUE,
-    preDrawCallback = DT::JS(
-      'function() {
-        Shiny.unbindAll(this.api().table().node())
-      }'
-    ),
+rownames = FALSE, selection = list(mode = "none"),
+escape = c(-5), options = list(
+  #autoWidth = TRUE,
+  preDrawCallback = DT::JS('function() {
+                           Shiny.unbindAll(this.api().table().node())
+  }'),
     drawCallback = DT::JS(
       'function(settings) {
-        Shiny.bindAll(this.api().table().node());
-        l = this.api().table().data().length;
-        for (i = 1;i<l+1; i++) {
-          document.getElementById("upcodeVal"+i).value = "";
-        }
-      }'
+      Shiny.bindAll(this.api().table().node());
+      l = this.api().table().data().length;
+      for (i = 1;i<l+1; i++) {
+      document.getElementById("upcodeVal"+i).value = "";
+      }
+}'
     )
   ))
 

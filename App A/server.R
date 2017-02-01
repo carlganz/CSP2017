@@ -39,7 +39,7 @@ server <- function(input, output, session) {
     fmt %>% left_join(tbl, by = c(Value = input$vars)) %>%
       mutate_(Total =  ~ if_else(is.na(Total),
                                  0L, Total)) %>%
-      arrange_( ~ Value) %>% select_(~Value,~Format,~Total)
+      arrange_(~ Value) %>% select_( ~ Value,  ~ Format,  ~ Total)
   })
 
   # first tab
@@ -64,21 +64,21 @@ server <- function(input, output, session) {
   ))
 
   freqTable2 <- reactive({
-    req(input$vars == "CA6", length(input$freq1_rows_selected)>1)
+    req(input$vars == "CA6", length(input$freq1_rows_selected) > 1)
 
     freq <- freqTable()
     freq <- freq %>% add_row(
       Format = paste0(collapse = "/",
                       freq[input$freq1_rows_selected,
-                                  "Format"]),
+                           "Format"]),
       Value = min(freq[input$freq1_rows_selected,
-                              "Value"]),
+                       "Value"]),
       Total = sum(freq[input$freq1_rows_selected,
-                              "Total"])
+                       "Total"])
     )
 
-    freq[-c(input$freq1_rows_selected), ] %>%
-      arrange_(~Value) %>% select_(~Value,~Format,~Total)
+    freq[-c(input$freq1_rows_selected),] %>%
+      arrange_( ~ Value) %>% select_( ~ Value,  ~ Format,  ~ Total)
   })
 
   output$freq2 <- DT::renderDataTable({
@@ -98,19 +98,23 @@ server <- function(input, output, session) {
       }
       }'
                  )
-  ), callback = DT::JS(paste0(
-    'table.on("click.dt","tr",function() {
+  ), callback = DT::JS(
+    paste0(
+      'table.on("click.dt","tr",function() {
       var data = table.row(this).data();
-      if (data[0]=="',min(freqTable()[input$freq1_rows_selected,
-                               "Value"]),'".toUpperCase()) {
-        alert("Do not collapse same level more than once");
-        table.row(this).deselect();
-                               }
-    })'
-  )))
+      if (data[0]=="',
+      min(freqTable()[input$freq1_rows_selected,
+                      "Value"]),
+      '".toUpperCase()) {
+      alert("Do not collapse same level more than once");
+      table.row(this).deselect();
+      }
+      })'
+  )
+    ))
 
   freqTable3 <- reactive({
-    req(input$vars == "CA6", length(input$freq2_rows_selected)>1)
+    req(input$vars == "CA6", length(input$freq2_rows_selected) > 1)
 
     freq <- freqTable2()
     freq <- freq %>% add_row(
@@ -123,8 +127,8 @@ server <- function(input, output, session) {
                        "Total"])
     )
 
-    freq[-c(input$freq2_rows_selected), ] %>%
-      arrange_(~Value) %>% select_(~Value,~Format,~Total)
+    freq[-c(input$freq2_rows_selected),] %>%
+      arrange_( ~ Value) %>% select_( ~ Value,  ~ Format,  ~ Total)
   })
 
   output$freq3 <- DT::renderDataTable({
@@ -201,7 +205,7 @@ server <- function(input, output, session) {
   # third tab
   counter <- reactiveValues(val = 0)
   output$count <- renderUI({
-    req(input$tab=="Group")
+    req(input$tab == "Group")
     HTML(counter$val)
   })
 
@@ -210,7 +214,7 @@ server <- function(input, output, session) {
   })
 
   observeEvent(input$removeLevel, {
-    if (counter$val>0) {
+    if (counter$val > 0) {
       counter$val <- -1 + counter$val
     }
   })
@@ -228,90 +232,127 @@ server <- function(input, output, session) {
   })
 
   output$sliders <- renderUI({
-    req(counter$val, input$vars=="SRAGE")
+    req(counter$val, input$vars == "SRAGE")
 
-    tagList(
-      lapply(seq_len(counter$val), function(i) {
-          if (i==1) {
-fluidRow(column(width = 4,
-            numericInput(paste0("min",i),
-                         label = paste0("Select minimum for level ",i," (inclusive)"),
-                         min = max(c(min(chis[[input$vars]]), 0)),
-                         max = max(c(min(chis[[input$vars]]), 0)),
-                         value = max(c(min(chis[[input$vars]]), 0))
-                         )),
-column(width = 4,
-            numericInput(paste0("max",i),
-                         label = paste0("Select maximum for level ",i," (not inclusive)"),
-                         min = max(c(min(chis[[input$vars]]), 0)),
-                         max = max(chis[[input$vars]]),
-                         value = input[[paste0("max",i)]]))
-            ,
-column(width =4,
-            textInput(paste0("level",i), value = paste0("Less than ",
-                                                        input[[paste0("max",i)]]),
-                      label =paste0("Choose title for the new level ",i))))
+    tagList(lapply(seq_len(counter$val), function(i) {
+      if (i == 1) {
+        fluidRow(
+          column(
+            width = 4,
+            numericInput(
+              paste0("min", i),
+              label = paste0("Select minimum for level ", i, " (inclusive)"),
+              min = max(c(min(chis[[input$vars]]), 0)),
+              max = max(c(min(chis[[input$vars]]), 0)),
+              value = max(c(min(chis[[input$vars]]), 0))
+            )
+          ),
+          column(
+            width = 4,
+            numericInput(
+              paste0("max", i),
+              label = paste0("Select maximum for level ", i, " (not inclusive)"),
+              min = max(c(min(chis[[input$vars]]), 0)),
+              max = max(chis[[input$vars]]),
+              value = input[[paste0("max", i)]]
+            )
+          )
+          ,
+          column(
+            width = 4,
+            textInput(
+              paste0("level", i),
+              value = paste0("Less than ",
+                             input[[paste0("max", i)]]),
+              label = paste0("Choose title for the new level ", i)
+            )
+          )
+        )
 
-          } else if (i==counter$val) {
-fluidRow(column(width =4,
-                numericInput(paste0("min",i),
-                             label = paste0("Select minimum for level ",i," (inclusive)"),
-                             min = input[[paste0("max", i-1)]],
-                             max = max(c(min(chis[[input$vars]]), 0)),
-                             value = input[[paste0("max", i-1)]]
-                )),
-column(width =4,
-                numericInput(paste0("max",i),
-                             label = paste0("Select maximum for level ",i," (inclusive)"),
-                             min = max(chis[[input$vars]]),
-                             max = max(chis[[input$vars]]),
-                             value = max(chis[[input$vars]])
-                )),
-column(width =4,
-            textInput(paste0("level",i), value = paste0("Greater than and including ",
-                                                        input[[paste0("min",i)]]),
-                      label = paste0("Choose title for the new level ",i))))
-            } else {
-fluidRow(column(width =4,
-            numericInput(paste0("min",i),
-                         label = paste0("Select minimum for level ",i," (inclusive)"),
-                         min = input[[paste0("max", i-1)]],
-                         max = max(chis[[input$vars]]),
-                         value = input[[paste0("max", i-1)]]
-            )),
-         column(width =4,
-            numericInput(paste0("max",i),
-                         label = paste0("Select maximum for level ",i," (not inclusive)"),
-                         min = input[[paste0("min", i)]],
-                         max = max(chis[[input$vars]]),
-                         value = input[[paste0("max",i)]]
-            )),
-         column(width =4,
-            textInput(paste0("level",i),
-                      value = paste0("[",input[[paste0("min",i)]],",",
-                                     input[[paste0("max",i)]],")"),
-                      label = paste0("Choose title for the new level ",i))))
-          }
-      })
-    )
+      } else if (i == counter$val) {
+        fluidRow(
+          column(
+            width = 4,
+            numericInput(
+              paste0("min", i),
+              label = paste0("Select minimum for level ", i, " (inclusive)"),
+              min = input[[paste0("max", i - 1)]],
+              max = max(c(min(chis[[input$vars]]), 0)),
+              value = input[[paste0("max", i - 1)]]
+            )
+          ),
+          column(
+            width = 4,
+            numericInput(
+              paste0("max", i),
+              label = paste0("Select maximum for level ", i, " (inclusive)"),
+              min = max(chis[[input$vars]]),
+              max = max(chis[[input$vars]]),
+              value = max(chis[[input$vars]])
+            )
+          ),
+          column(
+            width = 4,
+            textInput(
+              paste0("level", i),
+              value = paste0("Greater than and including ",
+                             input[[paste0("min", i)]]),
+              label = paste0("Choose title for the new level ", i)
+            )
+          )
+        )
+      } else {
+        fluidRow(
+          column(
+            width = 4,
+            numericInput(
+              paste0("min", i),
+              label = paste0("Select minimum for level ", i, " (inclusive)"),
+              min = input[[paste0("max", i - 1)]],
+              max = max(chis[[input$vars]]),
+              value = input[[paste0("max", i - 1)]]
+            )
+          ),
+          column(
+            width = 4,
+            numericInput(
+              paste0("max", i),
+              label = paste0("Select maximum for level ", i, " (not inclusive)"),
+              min = input[[paste0("min", i)]],
+              max = max(chis[[input$vars]]),
+              value = input[[paste0("max", i)]]
+            )
+          ),
+          column(
+            width = 4,
+            textInput(
+              paste0("level", i),
+              value = paste0("[", input[[paste0("min", i)]], ",",
+                             input[[paste0("max", i)]], ")"),
+              label = paste0("Choose title for the new level ", i)
+            )
+          )
+        )
+      }
+    }))
   })
 
   discrete <- reactive({
-    req(input$vars=="SRAGE", counter$val>1)
+    req(input$vars == "SRAGE", counter$val > 1)
 
     oldVar <- chis[[input$vars]]
     newVar <- character(nrow(chis))
     f <- character(counter$val)
     for (i in seq_len(counter$val)) {
       if (i != counter$val) {
-        rows <- oldVar>=input[[paste0("min",i)]] &
-          oldVar<input[[paste0("max",i)]]
+        rows <- oldVar >= input[[paste0("min", i)]] &
+          oldVar < input[[paste0("max", i)]]
       } else {
-        rows <- oldVar>=input[[paste0("min",i)]] &
-          oldVar<=input[[paste0("max",i)]]
+        rows <- oldVar >= input[[paste0("min", i)]] &
+          oldVar <= input[[paste0("max", i)]]
       }
-      f[i] <- input[[paste0("level",i)]]
-      newVar[rows] <- input[[paste0("level",i)]]
+      f[i] <- input[[paste0("level", i)]]
+      newVar[rows] <- input[[paste0("level", i)]]
 
     }
 
@@ -325,8 +366,9 @@ fluidRow(column(width =4,
 
     ggplot(data.frame(var = discrete()),
            aes(var)) + geom_bar() +
-      geom_text(stat = 'count', aes(label = ..count..),
-                vjust= -.2)
+      geom_text(stat = 'count',
+                aes(label = ..count..),
+                vjust = -.2)
 
   })
 
@@ -338,132 +380,224 @@ fluidRow(column(width =4,
       req(input$freq1_rows_selected)
 
       tblNum <- max(which(sapply(1:2, function(i) {
-          length(input[[paste0("freq",i,"_rows_selected")]])>1
+        length(input[[paste0("freq", i, "_rows_selected")]]) > 1
       })))
 
-      if (tblNum==1) {
+      if (tblNum == 1) {
         pfmt <- paste0("PROC FORMAT;\nVALUE ",
-                       input$newName,"F;\n")
+                       input$newName, "F;\n")
         for (i in seq_len(nrow(freqTable2()))) {
           pfmt <- paste0(pfmt,
-            freqTable2()[i, "Value"],"=",freqTable2()[i, "Format"],
-            ";\n"
-                         )
+                         freqTable2()[i, "Value"], "=", freqTable2()[i, "Format"],
+                         ";\n")
         }
-        pfmt <- paste0(pfmt,"RUN;")
+        pfmt <- paste0(pfmt, "RUN;")
 
         SAScode <- paste0(
-          "/* Code for constructing ",input$newName," */;\n",
-          input$newName, "=", input$vars,";\n",
-          "IF ",input$newName," IN (",
-          paste0(freqTable()[input$freq1_rows_selected,"Value"],
+          "/* Code for constructing ",
+          input$newName,
+          " */;\n",
+          input$newName,
+          "=",
+          input$vars,
+          ";\n",
+          "IF ",
+          input$newName,
+          " IN (",
+          paste0(freqTable()[input$freq1_rows_selected, "Value"],
                  collapse = ", "),
           ") THEN ",
-          input$newName,"=",
-          min(freqTable()[input$freq1_rows_selected,"Value"]),
-          ";\nLABEL ",input$newName,"=\"",input$newLabel,"\";\n",
-          "FORMAT ",input$newName," ",input$newName,"F.;\n"
+          input$newName,
+          "=",
+          min(freqTable()[input$freq1_rows_selected, "Value"]),
+          ";\nLABEL ",
+          input$newName,
+          "=\"",
+          input$newLabel,
+          "\";\n",
+          "FORMAT ",
+          input$newName,
+          " ",
+          input$newName,
+          "F.;\n"
         )
-      } else if (tblNum==2) {
-
+      } else if (tblNum == 2) {
         pfmt <- paste0("PROC FORMAT;\nVALUE ",
-                       input$newName,"F;\n")
+                       input$newName, "F;\n")
         for (i in seq_len(nrow(freqTable3()))) {
           pfmt <- paste0(pfmt,
-                         freqTable3()[i, "Value"],"=",freqTable3()[i, "Format"],
-                         ";\n"
-          )
+                         freqTable3()[i, "Value"], "=", freqTable3()[i, "Format"],
+                         ";\n")
         }
-        pfmt <- paste0(pfmt,"RUN;\n\n")
+        pfmt <- paste0(pfmt, "RUN;\n\n")
 
         SAScode <- paste0(
-          "/* Code for constructing ",input$newName," */;\n",
+          "/* Code for constructing ",
+          input$newName,
+          " */;\n",
 
-          input$newName, "=", input$vars,";\n",
-          "IF ",input$newName," IN (",
-          paste0(freqTable()[input$freq1_rows_selected,"Value"],
-                 collapse = ", "),") THEN ",
-          input$newName,"=",
-          min(freqTable()[input$freq1_rows_selected,"Value"]),
-          ";\nELSE IF ",input$newName," IN (",
-          paste0(freqTable2()[input$freq2_rows_selected,"Value"],
-                 collapse = ", "),") THEN ",
-          input$newName,"=",
-          min(freqTable2()[input$freq2_rows_selected,"Value"]),
-          ";\nLABEL ",input$newName,"=\"",input$newLabel,"\";\n",
-          "FORMAT ",input$newName," ",input$newName,"F.;\n"
+          input$newName,
+          "=",
+          input$vars,
+          ";\n",
+          "IF ",
+          input$newName,
+          " IN (",
+          paste0(freqTable()[input$freq1_rows_selected, "Value"],
+                 collapse = ", "),
+          ") THEN ",
+          input$newName,
+          "=",
+          min(freqTable()[input$freq1_rows_selected, "Value"]),
+          ";\nELSE IF ",
+          input$newName,
+          " IN (",
+          paste0(freqTable2()[input$freq2_rows_selected, "Value"],
+                 collapse = ", "),
+          ") THEN ",
+          input$newName,
+          "=",
+          min(freqTable2()[input$freq2_rows_selected, "Value"]),
+          ";\nLABEL ",
+          input$newName,
+          "=\"",
+          input$newLabel,
+          "\";\n",
+          "FORMAT ",
+          input$newName,
+          " ",
+          input$newName,
+          "F.;\n"
         )
       }
 
     } else if (input$tab == "Top Code") {
       pfmt <- paste0("PROC FORMAT;\nVALUE ",
-                     input$newName,"F;\n",
+                     input$newName,
+                     "F;\n",
                      "LOW-HIGH='VALUE';\nRUN;\n")
       SAScode <-
-        paste0("/* Code for constructing ",input$newName," */;\n",
-               input$newName, "=", input$vars,";\n",
-               "IF ",input$newName, " LT 0 THEN ",input$newName,
-               "=",input$newName,";\n",
-               "ELSE IF ",input$newName," LT ", input$recoder[1],
-               " THEN ",input$newName,"=",input$recoder[1],";\n",
-               "ELSE IF ",input$newName," GT ", input$recoder[2],
-               " THEN ",input$newName,"=",input$recoder[2],";\n",
-               "LABEL ",input$newName,"=\"",input$newLabel,"\"\n",
-               "FORMAT ",input$newName," ",input$newName,"F.;\n"
-               )
+        paste0(
+          "/* Code for constructing ",
+          input$newName,
+          " */;\n",
+          input$newName,
+          "=",
+          input$vars,
+          ";\n",
+          "IF ",
+          input$newName,
+          " LT 0 THEN ",
+          input$newName,
+          "=",
+          input$newName,
+          ";\n",
+          "ELSE IF ",
+          input$newName,
+          " LT ",
+          input$recoder[1],
+          " THEN ",
+          input$newName,
+          "=",
+          input$recoder[1],
+          ";\n",
+          "ELSE IF ",
+          input$newName,
+          " GT ",
+          input$recoder[2],
+          " THEN ",
+          input$newName,
+          "=",
+          input$recoder[2],
+          ";\n",
+          "LABEL ",
+          input$newName,
+          "=\"",
+          input$newLabel,
+          "\"\n",
+          "FORMAT ",
+          input$newName,
+          " ",
+          input$newName,
+          "F.;\n"
+        )
 
     } else if (input$tab == "Group") {
-
-      SAScode <- paste0("/* Code for constructing ",input$newName," */;\n",
-        input$newName,"=.;\n")
+      SAScode <-
+        paste0("/* Code for constructing ",
+               input$newName,
+               " */;\n",
+               input$newName,
+               "=.;\n")
 
       pfmt <- paste0("PROC FORMAT;\nVALUE ",
-                     input$newName,"F;\n")
+                     input$newName, "F;\n")
 
       for (i in seq_len(counter$val)) {
         pfmt <- paste0(pfmt,
-                       i,"=\"",
-                       input[[paste0("level",i)]]
-                       ,"\";\n")
-        if (i==1) {
-          SAScode <- paste0(SAScode,
-                            "IF ",input$vars,
-                            " GE ",input[[paste0("min", i)]],
-                            " AND ",input$vars," LT ",
-                            input[[paste0("max",i)]],
-                            " THEN ",input$newName,"=",i,
-                            ";\n"
+                       i, "=\"",
+                       input[[paste0("level", i)]]
+                       , "\";\n")
+        if (i == 1) {
+          SAScode <- paste0(
+            SAScode,
+            "IF ",
+            input$vars,
+            " GE ",
+            input[[paste0("min", i)]],
+            " AND ",
+            input$vars,
+            " LT ",
+            input[[paste0("max", i)]],
+            " THEN ",
+            input$newName,
+            "=",
+            i,
+            ";\n"
           )
-        } else if (i==counter$val) {
-          SAScode <- paste0(SAScode,
-                            "ELSE IF ",input$vars,
-                            " GE ",input[[paste0("min", i)]],
-                            " THEN ",input$newName,"=",i,
-                            ";\n"
+        } else if (i == counter$val) {
+          SAScode <- paste0(
+            SAScode,
+            "ELSE IF ",
+            input$vars,
+            " GE ",
+            input[[paste0("min", i)]],
+            " THEN ",
+            input$newName,
+            "=",
+            i,
+            ";\n"
           )
         } else {
-          SAScode <- paste0(SAScode,
-                            "ELSE IF ",input$vars,
-                            " GE ",input[[paste0("min", i)]],
-                            " AND ",input$vars," LT ",
-                            input[[paste0("max",i)]],
-                            " THEN ",input$newName,"=",i,
-                            ";\n"
+          SAScode <- paste0(
+            SAScode,
+            "ELSE IF ",
+            input$vars,
+            " GE ",
+            input[[paste0("min", i)]],
+            " AND ",
+            input$vars,
+            " LT ",
+            input[[paste0("max", i)]],
+            " THEN ",
+            input$newName,
+            "=",
+            i,
+            ";\n"
           )
         }
       }
 
     }
 
-    showModal(
-      modalDialog(size = "l",
-        h2("SAS Code:"),
-        h4("Format Statement:"),
-        HTML(gsub("\n","<br>",pfmt)),
-        h4("Data Statement:"),
-        HTML(gsub("\n","<br>",SAScode))
-      )
-    )
+    showModal(modalDialog(
+      size = "l",
+      h2("SAS Code:"),
+      h4("Format Statement:"),
+      HTML(gsub("\n", "<br>", pfmt)),
+      h4("Data Statement:"),
+      HTML(gsub("\n", "<br>", SAScode))
+    ))
   })
 
   }
