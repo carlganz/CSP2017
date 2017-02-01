@@ -6,7 +6,6 @@ Authors@R: c(
   )
 Description: Three demo Shiny applications from our poster
   at CSP2017.
-Depends: R (>= 3.3.2)
 Imports: shiny
 Suggests: DT, dplyr, ggplot2, tidyr, shinyjs, stringdist,
   openxlsx, DBI
