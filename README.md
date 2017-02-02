@@ -11,6 +11,7 @@ install.packages('DT')
 install.packages('tidyverse')
 install.packages('stringdist')
 install.packages('shinyjs')
+install.packages('RSQLite')
 install.packages('openxlsx')
 ```
 For `openxlsx` to work on Windows you will need Rtools.
@@ -20,7 +21,7 @@ For `openxlsx` to work on Windows you will need Rtools.
 To run the apps locally you'll first need to use `devtools` to install this package.
 
 ```{R}
-devtools::install_github("carlganz/CSP2017")
+devtools::install_github("carlganz/CSP2017", dependencies = TRUE)
 
 library(CG.CSP17)
 
