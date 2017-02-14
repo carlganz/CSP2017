@@ -4,10 +4,12 @@
 \alias{run_app}
 \title{Run Apps}
 \usage{
-run_app(app = c("A", "B", "C"))
+run_app(app = c("A", "B", "C"), ...)
 }
 \arguments{
 \item{app}{Select which app to run}
+
+\item{...}{Other arguments passed to \code{\link[shiny]{runApp}}}
 }
 \description{
 Functions for running shiny apps
@@ -20,3 +22,4 @@ run_app("C")
 }
 
 }
+

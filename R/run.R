@@ -3,6 +3,7 @@
 #' Functions for running shiny apps
 #'
 #' @param app Select which app to run
+#' @param ... Other arguments passed to \code{\link[shiny]{runApp}}
 #' @export
 #' @importFrom shiny runApp
 #' @examples
@@ -13,7 +14,7 @@
 #' }
 #'
 
-run_app <- function(app = c("A", "B", "C")) {
+run_app <- function(app = c("A", "B", "C"), ...) {
   stopifnot(length(app)==1)
   if (app %in% 1:3) {
     app <- c("A", "B", "C")[app]
@@ -21,7 +22,8 @@ run_app <- function(app = c("A", "B", "C")) {
 
   shiny::runApp(
     system.file(paste("App", app, sep = "_"),
-                package = "CG.CSP17")
+                package = "CG.CSP17"),
+    ...
   )
 
 }
