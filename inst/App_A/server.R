@@ -6,6 +6,7 @@ library(ggplot2)
 
 
 server <- function(input, output, session) {
+  session$onSessionEnded(stopApp)
   # load data
   chis <- readRDS("www/chis.rds")
 

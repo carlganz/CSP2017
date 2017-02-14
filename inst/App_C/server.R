@@ -8,6 +8,9 @@ library(DBI)
 
 
 server <- function(input, output, session) {
+  session$onSessionEnded(stopApp)
+
+  # load sqlite db with dplyr
   my_db <- src_sqlite("www/metadata.sqlite3") %>%
     tbl("metadata")
 
@@ -22,6 +25,7 @@ server <- function(input, output, session) {
   }, rownames = FALSE,
   selection = list(mode = FALSE))
 
+  # download excel file
   output$download <- downloadHandler(
     filename = function() {
       paste("metadata", Sys.Date(), ".xlsx")
@@ -89,6 +93,7 @@ server <- function(input, output, session) {
     }
   )
 
+  # read excel file and compare to db
   difference <- reactive({
     req(input$uploader)
     ages <- c("ADULT", "TEEN", "CHILD")
@@ -172,6 +177,7 @@ server <- function(input, output, session) {
                   nrow(difference())>0)
   })
 
+  # update db
   observeEvent(input$accept, {
     con <- my_db[[1]]$con
     difference <- difference()

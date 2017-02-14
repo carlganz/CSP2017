@@ -4,6 +4,7 @@ library(dplyr)
 library(stringdist)
 
 server <- function(input, output, session) {
+  session$onSessionEnded(stopApp)
   # helper function for making inputs
   # in datatable
   # stolen from Yihui somewhere
