@@ -111,4 +111,17 @@ escape = c(-5), options = list(
     )
   ))
 
+  observeEvent(input$submit, {
+    updateSelectizeInput(session, "var", selected = "")
+
+    ### Would store upcodes in database if this wasn't a demo
+
+    showModal(
+      modalDialog(size = "s", easyClose = TRUE,
+                  h2("Upcodes submitted!")
+                  )
+    )
+
+  })
+
 }

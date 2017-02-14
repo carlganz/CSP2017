@@ -40,7 +40,8 @@ ui <- fluidPage(titlePanel("App B"),
             ),
             column(width = 7,
                    tableOutput("formats"))),
-          DT::dataTableOutput("responses")
+          DT::dataTableOutput("responses"),
+          actionButton("submit", "Submit")
           )
         )
           ))
