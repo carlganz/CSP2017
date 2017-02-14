@@ -21,7 +21,7 @@ server <- function(input, output, session) {
                              input$year),
                ~ age %in% c(input$age,
                             input$age)) %>%
-      collect()
+      collect() %>% select_(~ year, ~ age, ~everything())
   }, rownames = FALSE,
   selection = list(mode = FALSE))
 
@@ -88,7 +88,8 @@ server <- function(input, output, session) {
           sheetName = input$age,
           firstRow = TRUE,
           firstCol = TRUE,
-          headerStyle = hs
+          headerStyle = hs,
+          colWidths = rep("auto", ncol(db))
         )
     }
   )
