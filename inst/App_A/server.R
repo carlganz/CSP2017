@@ -344,6 +344,7 @@ server <- function(input, output, session) {
     newVar <- character(nrow(chis))
     f <- character(counter$val)
     for (i in seq_len(counter$val)) {
+      req(input[[paste0("level", i)]])
       if (i != counter$val) {
         rows <- oldVar >= input[[paste0("min", i)]] &
           oldVar < input[[paste0("max", i)]]
@@ -589,6 +590,8 @@ server <- function(input, output, session) {
       }
 
     }
+
+    updateSelectizeInput(session, "vars", selected = "")
 
     showModal(modalDialog(
       size = "l",
