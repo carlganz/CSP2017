@@ -3,6 +3,8 @@
 # CSP2017
 This R package contains Shiny apps related to poster [*Using Shiny to Efficiently Process Survey Data*](https://ww2.amstat.org/meetings/csp/2017/onlineprogram/AbstractDetails.cfm?AbstractID=303391) at Conference for Statistical practice 2017 in Jacksonville
 
+This poster co-won best student poster: http://magazine.amstat.org/blog/2017/04/01/csp2017recap/
+
 ### Required packages
 
 ```{R}
